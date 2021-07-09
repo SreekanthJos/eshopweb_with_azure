@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.eShopWeb.ApplicationCore.Entities;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.eShopWeb.ApplicationCore.Specifications;
+using Microsoft.Extensions.Logging;
 using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Linq;
@@ -19,14 +20,17 @@ namespace Microsoft.eShopWeb.PublicApi.CatalogItemEndpoints
         private readonly IAsyncRepository<CatalogItem> _itemRepository;
         private readonly IUriComposer _uriComposer;
         private readonly IMapper _mapper;
+        private readonly ILogger<ListPaged> _logger;
 
         public ListPaged(IAsyncRepository<CatalogItem> itemRepository,
             IUriComposer uriComposer,
-            IMapper mapper)
+            IMapper mapper,
+            ILogger<ListPaged> logger)
         {
             _itemRepository = itemRepository;
             _uriComposer = uriComposer;
             _mapper = mapper;
+            _logger = logger;
         }
 
         [HttpGet("api/catalog-items")]
@@ -51,6 +55,12 @@ namespace Microsoft.eShopWeb.PublicApi.CatalogItemEndpoints
 
             var items = await _itemRepository.ListAsync(pagedSpec, cancellationToken);
 
+            _logger.LogInformation($"total items count - {items.Count}");
+            _logger.LogDebug($"total items count - {items.Count}");
+            _logger.LogCritical($"total items count - {items.Count}");
+            _logger.LogWarning($"total items count - {items.Count}");
+
+            // throw new Exception("Cannot move further");
             response.CatalogItems.AddRange(items.Select(_mapper.Map<CatalogItemDto>));
             foreach (CatalogItemDto item in response.CatalogItems)
             {

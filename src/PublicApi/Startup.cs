@@ -97,7 +97,7 @@ namespace Microsoft.eShopWeb.PublicApi
             var baseUrlConfig = new BaseUrlConfiguration();
             Configuration.Bind(BaseUrlConfiguration.CONFIG_NAME, baseUrlConfig);
             services.AddScoped<IFileSystem, WebFileSystem>(x => new WebFileSystem($"{baseUrlConfig.WebBase}File"));
-
+            //services.AddApplicationInsightsTelemetry();
             services.AddMemoryCache();
 
             var key = Encoding.ASCII.GetBytes(AuthorizationConstants.JWT_SECRET_KEY);
@@ -168,6 +168,7 @@ namespace Microsoft.eShopWeb.PublicApi
                     }
                 });
             });
+            services.AddApplicationInsightsTelemetry("InstrumentationKey=f8478e3b-bb3a-4fa1-a10a-c073ecc06706;IngestionEndpoint=https://southcentralus-0.in.applicationinsights.azure.com/");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
