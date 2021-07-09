@@ -4,7 +4,15 @@ using Microsoft.eShopWeb.ApplicationCore.Entities.BasketAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Entities.OrderAggregate;
 using Microsoft.eShopWeb.ApplicationCore.Interfaces;
 using Microsoft.eShopWeb.ApplicationCore.Specifications;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.eShopWeb.ApplicationCore.Services
@@ -47,8 +55,80 @@ namespace Microsoft.eShopWeb.ApplicationCore.Services
             }).ToList();
 
             var order = new Order(basket.BuyerId, shippingAddress, items);
-
+          
             await _orderRepository.AddAsync(order);
+            // await UploadOrders(items);
+            await CreateDeliveryForOrder(order);
+        }
+               
+        private async Task CreateDeliveryForOrder(Order order)
+        {
+            //var json = JsonConvert.SerializeObject(order);
+            var functionUrl = "https://orderdeliveryfun.azurewebsites.net/api/OrderDelivery?code=EEdYxvD3WZIRJJBNhWxGUR0AAf10WTb15aZoLRTiaaqrvz/aLKPUoQ==";
+             
+            using (HttpClient client = new HttpClient())
+            using (var request = new HttpRequestMessage(HttpMethod.Post, functionUrl))
+            using (HttpContent content = CreateHttpContent(order))
+            {
+                request.Content = content;
+                using (var resp = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
+                {
+                    var message = await resp.Content.ReadAsStringAsync();
+                }
+            }
+        }
+        private async Task UploadOrders(List<OrderItem> items)
+        {
+            List<OrderedItem> orderedItems = new List<OrderedItem>();
+            foreach (var item in items)
+            {
+                orderedItems.Add(new OrderedItem { ItemId = item.ItemOrdered.CatalogItemId, Quantity = item.Units });
+            }
+            var json = JsonConvert.SerializeObject(orderedItems);
+            var functionUrl = "https://sjorderreserver.azurewebsites.net/api/OrderItemsReserver?code=9M1/uP4tY52UOBkmOJm3BYtHT6pEvl4/HkISdpkgpy78O7gUwe1gxQ==";
+           //var requestData = new StringContent(json, Encoding.UTF8, "application/json");
+            using (HttpClient client = new HttpClient())
+            using (var request = new HttpRequestMessage(HttpMethod.Post, functionUrl))
+            using (HttpContent content = CreateHttpContent(orderedItems))
+            {
+                request.Content = content;
+                using (var resp = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead))
+                {
+                    var resualtList = await resp.Content.ReadAsStringAsync();
+                }
+            }
+        }
+
+        public static void SerializeJsonIntoStream(object value, Stream stream)
+        {
+            using (var sw = new StreamWriter(stream, new UTF8Encoding(false), 1024, true))
+            using (var jtw = new JsonTextWriter(sw) { Formatting = Formatting.None })
+            {
+                var js = new JsonSerializer();
+                js.Serialize(jtw, value);
+                jtw.Flush();
+            }
+        }
+        private static HttpContent CreateHttpContent(object content)
+        {
+            HttpContent httpContent = null;
+
+            if (content != null)
+            {
+                var ms = new MemoryStream();
+                SerializeJsonIntoStream(content, ms);
+                ms.Seek(0, SeekOrigin.Begin);
+                httpContent = new StreamContent(ms);
+                httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            }
+
+            return httpContent;
+        }
+
+        public class OrderedItem
+        {
+            public int ItemId { get; set; }
+            public int Quantity { get; set; }
         }
     }
 }
