@@ -56,6 +56,7 @@ namespace OrderItemsReserver
 
                 var client = new ServiceBusClient(config["SBConnestionString"]);
                 var sender = client.CreateSender(config["QueueName"]);
+                
                 var message = "Order creation failed, please try again!!";
                 await sender.SendMessageAsync(new ServiceBusMessage(message));
 

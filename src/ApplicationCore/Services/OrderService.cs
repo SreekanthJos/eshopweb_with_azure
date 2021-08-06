@@ -57,15 +57,16 @@ namespace Microsoft.eShopWeb.ApplicationCore.Services
             var order = new Order(basket.BuyerId, shippingAddress, items);
           
             await _orderRepository.AddAsync(order);
-             await UploadOrders(items);
-            //await CreateDeliveryForOrder(order);
+            await UploadOrders(items);
+            await CreateDeliveryForOrder(order);
         }
                
         private async Task CreateDeliveryForOrder(Order order)
         {
             //var json = JsonConvert.SerializeObject(order);
-            var functionUrl = "https://orderdeliveryfun.azurewebsites.net/api/OrderDelivery?code=EEdYxvD3WZIRJJBNhWxGUR0AAf10WTb15aZoLRTiaaqrvz/aLKPUoQ==";
-             
+            var functionUrl = "https://orderdeliveryfun.azurewebsites.net/api/OrderDelivery?code=FzPb1yS2nXVvYzLQ/A/Z2LagUDq3VIqYP5/18kcERlqzPQS/yEqD4w==";
+                //"https://orderdeliveryfun.azurewebsites.net/api/OrderDelivery?code=EEdYxvD3WZIRJJBNhWxGUR0AAf10WTb15aZoLRTiaaqrvz/aLKPUoQ==";
+
             using (HttpClient client = new HttpClient())
             using (var request = new HttpRequestMessage(HttpMethod.Post, functionUrl))
             using (HttpContent content = CreateHttpContent(order))
@@ -84,8 +85,10 @@ namespace Microsoft.eShopWeb.ApplicationCore.Services
             {
                 orderedItems.Add(new OrderedItem { ItemId = item.ItemOrdered.CatalogItemId, Quantity = item.Units });
             }
+        
             var json = JsonConvert.SerializeObject(orderedItems);
-            var functionUrl = "https://sjorderreserver.azurewebsites.net/api/OrderItemsReserver?code=iXzDgYSevq0A3tuaRbJgcagLZHlFJs/HIEoxNgumPKMTnEbCSKVPSg==";
+            var functionUrl = "http://localhost:7071/api/OrderItemsReserver";
+                //"https://sjorderitemsreserver.azurewebsites.net/api/OrderItemsReserver?code=XDHNxNqGdP4XNQcE96zr3buj8guDhG4hxlgvUaTDepcDbXFqJOwBag==";
                 //"https://sjorderreserver.azurewebsites.net/api/OrderItemsReserver?code=6cP9es/k5XF9TJvr2PRgZmuvPRZUx9DZUauS8pa8WNUUuNQJJi6UoQ==";
                 //var requestData = new StringContent(json, Encoding.UTF8, "application/json");
             using (HttpClient client = new HttpClient())

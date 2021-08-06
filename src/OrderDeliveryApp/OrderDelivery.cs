@@ -18,8 +18,8 @@ namespace OrderDeliveryApp
         private static Database database;
         private static CosmosClient cosmosClient;
         private static Container container;
-        private static string databaseId = "OrderDeliverDB-1";
-        private static string containerId = "OrderDeliverContainer-1";
+        private static string databaseId = "OrderDeliverDB";
+        private static string containerId = "OrderDeliverContainer";
 
         [FunctionName("OrderDelivery")]
         public static async Task<IActionResult> Run(
@@ -33,7 +33,7 @@ namespace OrderDeliveryApp
                          .AddJsonFile("local.settings.json", true, true)
                          .AddEnvironmentVariables().Build();
 
-                cosmosClient = new CosmosClient(config["CosmosDBEndpoint"],config["CosmosDBPrimaryKey"]);
+                cosmosClient = new CosmosClient(config["CosmosDBEndpoint"]);
                 log.LogInformation("Order Delivery function execution started");
                 await CreateDataBaseAsync();
                 log.LogInformation("Database created or connected");
