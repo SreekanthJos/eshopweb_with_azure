@@ -87,10 +87,11 @@ namespace Microsoft.eShopWeb.ApplicationCore.Services
             }
         
             var json = JsonConvert.SerializeObject(orderedItems);
-            var functionUrl = "http://localhost:7071/api/OrderItemsReserver";
-                //"https://sjorderitemsreserver.azurewebsites.net/api/OrderItemsReserver?code=XDHNxNqGdP4XNQcE96zr3buj8guDhG4hxlgvUaTDepcDbXFqJOwBag==";
-                //"https://sjorderreserver.azurewebsites.net/api/OrderItemsReserver?code=6cP9es/k5XF9TJvr2PRgZmuvPRZUx9DZUauS8pa8WNUUuNQJJi6UoQ==";
-                //var requestData = new StringContent(json, Encoding.UTF8, "application/json");
+            var functionUrl = "https://sjorderitemsreserver.azurewebsites.net/api/OrderItemsReserver?code=XDHNxNqGdP4XNQcE96zr3buj8guDhG4hxlgvUaTDepcDbXFqJOwBag==";
+
+            //"http://localhost:7071/api/OrderItemsReserver";
+            ////"https://sjorderreserver.azurewebsites.net/api/OrderItemsReserver?code=6cP9es/k5XF9TJvr2PRgZmuvPRZUx9DZUauS8pa8WNUUuNQJJi6UoQ==";
+            //var requestData = new StringContent(json, Encoding.UTF8, "application/json");
             using (HttpClient client = new HttpClient())
             using (var request = new HttpRequestMessage(HttpMethod.Post, functionUrl))
             using (HttpContent content = CreateHttpContent(orderedItems))
